@@ -1,0 +1,6 @@
+github "AliSoftware/OHHTTPStubs" "5.1.0"
+github "Reloni/RxHttpClient" "0.2"
+github "Reloni/RxHttpClientJasonExtension" "0.2"
+github "Reloni/RxStreamPlayer" "0.1.1"
+github "ReactiveX/RxSwift" "2.6.0"
+github "realm/realm-cocoa" "v1.0.1"
