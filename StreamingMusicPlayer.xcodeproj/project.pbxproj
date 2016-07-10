@@ -157,6 +157,7 @@
 				6ECBE7721D2F8B4D005423F8 /* Sources */,
 				6ECBE7731D2F8B4D005423F8 /* Frameworks */,
 				6ECBE7741D2F8B4D005423F8 /* Resources */,
+				6E2658131D32B38C005570DA /* Copy in development frameworks */,
 				6E2658121D329D81005570DA /* Copy carthage frameworks */,
 			);
 			buildRules = (
@@ -295,6 +296,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/usr/local/bin/carthage copy-frameworks";
+		};
+		6E2658131D32B38C005570DA /* Copy in development frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy in development frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/bin/sh ${SRCROOT}/Scripts/CopyInDevelopmentFrameworks.sh $BUILD_DIR";
 		};
 /* End PBXShellScriptBuildPhase section */
 
