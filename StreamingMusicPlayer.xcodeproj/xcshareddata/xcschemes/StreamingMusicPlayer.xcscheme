@@ -39,16 +39,6 @@
                ReferencedContainer = "container:StreamingMusicPlayer.xcodeproj">
             </BuildableReference>
          </TestableReference>
-         <TestableReference
-            skipped = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "6ECBE7941D2F8B4D005423F8"
-               BuildableName = "StreamingMusicPlayerUITests.xctest"
-               BlueprintName = "StreamingMusicPlayerUITests"
-               ReferencedContainer = "container:StreamingMusicPlayer.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
