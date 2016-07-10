@@ -14,6 +14,18 @@
 		6E26580F1D329D11005570DA /* RxHttpClientJasonExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2658081D329D11005570DA /* RxHttpClientJasonExtension.framework */; };
 		6E2658101D329D11005570DA /* RxStreamPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2658091D329D11005570DA /* RxStreamPlayer.framework */; };
 		6E2658111D329D11005570DA /* RxSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E26580A1D329D11005570DA /* RxSwift.framework */; };
+		6E2658141D32B89A005570DA /* Realm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2658041D329D11005570DA /* Realm.framework */; };
+		6E2658151D32B89A005570DA /* RealmSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2658051D329D11005570DA /* RealmSwift.framework */; };
+		6E2658161D32B89A005570DA /* RxCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2658061D329D11005570DA /* RxCocoa.framework */; };
+		6E2658171D32B89A005570DA /* RxHttpClient.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2658071D329D11005570DA /* RxHttpClient.framework */; };
+		6E2658181D32B89A005570DA /* RxHttpClientJasonExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2658081D329D11005570DA /* RxHttpClientJasonExtension.framework */; };
+		6E2658191D32B89A005570DA /* RxStreamPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2658091D329D11005570DA /* RxStreamPlayer.framework */; };
+		6E26581A1D32B89A005570DA /* RxSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E26580A1D329D11005570DA /* RxSwift.framework */; };
+		6E26581E1D32B89A005570DA /* OHHTTPStubs.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E26581B1D32B89A005570DA /* OHHTTPStubs.framework */; };
+		6E26581F1D32B89A005570DA /* RxBlocking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E26581C1D32B89A005570DA /* RxBlocking.framework */; };
+		6E2658201D32B89A005570DA /* RxTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E26581D1D32B89A005570DA /* RxTests.framework */; };
+		6E2658231D32BA10005570DA /* JASON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2658221D32BA10005570DA /* JASON.framework */; };
+		6E2658241D32BA4F005570DA /* JASON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2658221D32BA10005570DA /* JASON.framework */; };
 		6ECBE77A1D2F8B4D005423F8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ECBE7791D2F8B4D005423F8 /* AppDelegate.swift */; };
 		6ECBE77C1D2F8B4D005423F8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ECBE77B1D2F8B4D005423F8 /* ViewController.swift */; };
 		6ECBE77F1D2F8B4D005423F8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6ECBE77D1D2F8B4D005423F8 /* Main.storyboard */; };
@@ -46,6 +58,10 @@
 		6E2658081D329D11005570DA /* RxHttpClientJasonExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxHttpClientJasonExtension.framework; path = Dependencies/iOS/RxHttpClientJasonExtension.framework; sourceTree = "<group>"; };
 		6E2658091D329D11005570DA /* RxStreamPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxStreamPlayer.framework; path = Dependencies/iOS/RxStreamPlayer.framework; sourceTree = "<group>"; };
 		6E26580A1D329D11005570DA /* RxSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxSwift.framework; path = Dependencies/iOS/RxSwift.framework; sourceTree = "<group>"; };
+		6E26581B1D32B89A005570DA /* OHHTTPStubs.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OHHTTPStubs.framework; path = Dependencies/iOS/OHHTTPStubs.framework; sourceTree = "<group>"; };
+		6E26581C1D32B89A005570DA /* RxBlocking.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxBlocking.framework; path = Dependencies/iOS/RxBlocking.framework; sourceTree = "<group>"; };
+		6E26581D1D32B89A005570DA /* RxTests.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxTests.framework; path = Dependencies/iOS/RxTests.framework; sourceTree = "<group>"; };
+		6E2658221D32BA10005570DA /* JASON.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JASON.framework; path = Dependencies/iOS/JASON.framework; sourceTree = "<group>"; };
 		6ECBE7761D2F8B4D005423F8 /* StreamingMusicPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StreamingMusicPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6ECBE7791D2F8B4D005423F8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6ECBE77B1D2F8B4D005423F8 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -64,6 +80,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E2658231D32BA10005570DA /* JASON.framework in Frameworks */,
 				6E26580B1D329D11005570DA /* Realm.framework in Frameworks */,
 				6E26580C1D329D11005570DA /* RealmSwift.framework in Frameworks */,
 				6E26580D1D329D11005570DA /* RxCocoa.framework in Frameworks */,
@@ -78,6 +95,17 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E2658241D32BA4F005570DA /* JASON.framework in Frameworks */,
+				6E26581E1D32B89A005570DA /* OHHTTPStubs.framework in Frameworks */,
+				6E26581F1D32B89A005570DA /* RxBlocking.framework in Frameworks */,
+				6E2658201D32B89A005570DA /* RxTests.framework in Frameworks */,
+				6E2658141D32B89A005570DA /* Realm.framework in Frameworks */,
+				6E2658151D32B89A005570DA /* RealmSwift.framework in Frameworks */,
+				6E2658161D32B89A005570DA /* RxCocoa.framework in Frameworks */,
+				6E2658171D32B89A005570DA /* RxHttpClient.framework in Frameworks */,
+				6E2658181D32B89A005570DA /* RxHttpClientJasonExtension.framework in Frameworks */,
+				6E2658191D32B89A005570DA /* RxStreamPlayer.framework in Frameworks */,
+				6E26581A1D32B89A005570DA /* RxSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -94,6 +122,10 @@
 		6ECBE76D1D2F8B4D005423F8 = {
 			isa = PBXGroup;
 			children = (
+				6E2658221D32BA10005570DA /* JASON.framework */,
+				6E26581B1D32B89A005570DA /* OHHTTPStubs.framework */,
+				6E26581C1D32B89A005570DA /* RxBlocking.framework */,
+				6E26581D1D32B89A005570DA /* RxTests.framework */,
 				6E2658041D329D11005570DA /* Realm.framework */,
 				6E2658051D329D11005570DA /* RealmSwift.framework */,
 				6E2658061D329D11005570DA /* RxCocoa.framework */,
@@ -176,6 +208,7 @@
 				6ECBE7861D2F8B4D005423F8 /* Sources */,
 				6ECBE7871D2F8B4D005423F8 /* Frameworks */,
 				6ECBE7881D2F8B4D005423F8 /* Resources */,
+				6E2658211D32B8A3005570DA /* Copy carthage frameworks */,
 			);
 			buildRules = (
 			);
@@ -289,6 +322,7 @@
 				"$(SRCROOT)/Dependencies/iOS/RxHttpClient.framework",
 				"$(SRCROOT)/Dependencies/iOS/RxHttpClientJasonExtension.framework",
 				"$(SRCROOT)/Dependencies/iOS/RxStreamPlayer.framework",
+				"$(SRCROOT)/Dependencies/iOS/JASON.framework",
 			);
 			name = "Copy carthage frameworks";
 			outputPaths = (
@@ -310,6 +344,31 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh ${SRCROOT}/Scripts/CopyInDevelopmentFrameworks.sh $BUILD_DIR";
+		};
+		6E2658211D32B8A3005570DA /* Copy carthage frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/Dependencies/iOS/RxSwift.framework",
+				"$(SRCROOT)/Dependencies/iOS/RxCocoa.framework",
+				"$(SRCROOT)/Dependencies/iOS/Realm.framework",
+				"$(SRCROOT)/Dependencies/iOS/RealmSwift.framework",
+				"$(SRCROOT)/Dependencies/iOS/RxHttpClient.framework",
+				"$(SRCROOT)/Dependencies/iOS/RxHttpClientJasonExtension.framework",
+				"$(SRCROOT)/Dependencies/iOS/RxStreamPlayer.framework",
+				"$(SRCROOT)/Dependencies/iOS/OHHTTPStubs.framework",
+				"$(SRCROOT)/Dependencies/iOS/JASON.framework",
+				"$(SRCROOT)/Dependencies/iOS/RxBlocking.framework",
+				"$(SRCROOT)/Dependencies/iOS/RxTests.framework",
+			);
+			name = "Copy carthage frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/usr/local/bin/carthage copy-frameworks";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -489,10 +548,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Dependencies/iOS",
+				);
 				INFOPLIST_FILE = StreamingMusicPlayerTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.AntonEfimenko.StreamingMusicPlayerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/StreamingMusicPlayer.app/StreamingMusicPlayer";
 			};
 			name = Debug;
@@ -501,6 +566,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Dependencies/iOS",
+				);
 				INFOPLIST_FILE = StreamingMusicPlayerTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.AntonEfimenko.StreamingMusicPlayerTests;
