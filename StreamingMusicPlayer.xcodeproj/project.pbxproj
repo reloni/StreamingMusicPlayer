@@ -26,6 +26,7 @@
 		6E2658201D32B89A005570DA /* RxTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E26581D1D32B89A005570DA /* RxTests.framework */; };
 		6E2658231D32BA10005570DA /* JASON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2658221D32BA10005570DA /* JASON.framework */; };
 		6E2658241D32BA4F005570DA /* JASON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E2658221D32BA10005570DA /* JASON.framework */; };
+		6E6F0E1C1D33789D006EA33A /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6F0E1B1D33789D006EA33A /* Test.swift */; };
 		6ECBE77A1D2F8B4D005423F8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ECBE7791D2F8B4D005423F8 /* AppDelegate.swift */; };
 		6ECBE77C1D2F8B4D005423F8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ECBE77B1D2F8B4D005423F8 /* ViewController.swift */; };
 		6ECBE77F1D2F8B4D005423F8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6ECBE77D1D2F8B4D005423F8 /* Main.storyboard */; };
@@ -62,6 +63,7 @@
 		6E26581C1D32B89A005570DA /* RxBlocking.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxBlocking.framework; path = Dependencies/iOS/RxBlocking.framework; sourceTree = "<group>"; };
 		6E26581D1D32B89A005570DA /* RxTests.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxTests.framework; path = Dependencies/iOS/RxTests.framework; sourceTree = "<group>"; };
 		6E2658221D32BA10005570DA /* JASON.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JASON.framework; path = Dependencies/iOS/JASON.framework; sourceTree = "<group>"; };
+		6E6F0E1B1D33789D006EA33A /* Test.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Test.swift; sourceTree = "<group>"; };
 		6ECBE7761D2F8B4D005423F8 /* StreamingMusicPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StreamingMusicPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6ECBE7791D2F8B4D005423F8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6ECBE77B1D2F8B4D005423F8 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -167,6 +169,7 @@
 			isa = PBXGroup;
 			children = (
 				6ECBE7901D2F8B4D005423F8 /* Info.plist */,
+				6E6F0E1B1D33789D006EA33A /* Test.swift */,
 			);
 			path = StreamingMusicPlayerTests;
 			sourceTree = "<group>";
@@ -386,6 +389,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E6F0E1C1D33789D006EA33A /* Test.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
