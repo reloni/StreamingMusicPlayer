@@ -1,13 +1,6 @@
-//
-//  PlayListInfoModel.swift
-//  CloudMusicPlayer
-//
-//  Created by Anton Efimenko on 21.05.16.
-//  Copyright © 2016 Anton Efimenko. All rights reserved.
-//
-
 import Foundation
 import RxSwift
+import RxStreamPlayer
 
 class PlayListInfoModel {
 	let playList: PlayListType

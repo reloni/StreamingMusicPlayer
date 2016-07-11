@@ -1,13 +1,7 @@
-//
-//  PlayerController.swift
-//  CloudMusicPlayer
-//
-//  Created by Anton Efimenko on 29.05.16.
-//  Copyright © 2016 Anton Efimenko. All rights reserved.
-//
-
 import UIKit
 import RxSwift
+import RxStreamPlayer
+import RxHttpClient
 
 class PlayerController: UIViewController {
 	@IBOutlet weak var trackProgressSlider: UISlider!
@@ -43,9 +37,9 @@ class PlayerController: UIViewController {
 	override func viewWillAppear(animated: Bool) {
 		playPauseButton.selected = MainModel.sharedInstance.player.playing
 		
-		DispatchQueue.async(.Utility) {
+		dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
 			if let currentTime = MainModel.sharedInstance.player.getCurrentItemTimeAndDuration() {
-				DispatchQueue.async(.MainQueue) { [weak self] in
+				dispatch_async(dispatch_get_main_queue()) { [weak self] in
 					self?.currentTimeLabel.text = currentTime.currentTime.asString
 					self?.fullTimeLabel.text = currentTime.duration.asString
 					if let currSec = currentTime.currentTime.safeSeconds, fullSec = currentTime.duration.safeSeconds {

@@ -1,13 +1,6 @@
-//
-//  PlayerQueueController.swift
-//  CloudMusicPlayer
-//
-//  Created by Anton Efimenko on 29.06.16.
-//  Copyright © 2016 Anton Efimenko. All rights reserved.
-//
-
 import UIKit
 import RxSwift
+import RxStreamPlayer
 
 class PlayerQueueController: UIViewController {
 	var tableViewController: UniversalTableViewController!

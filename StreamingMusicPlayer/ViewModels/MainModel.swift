@@ -1,15 +1,8 @@
-//
-//  MainModel.swift
-//  CloudMusicPlayer
-//
-//  Created by Anton Efimenko on 24.05.16.
-//  Copyright © 2016 Anton Efimenko. All rights reserved.
-//
-
 import Foundation
 import RxSwift
 import RealmSwift
 import UIKit
+import RxStreamPlayer
 
 class MainModel {
 	static var sharedInstance: MainModel!
@@ -23,9 +16,9 @@ class MainModel {
 	var isMetadataLoadInProgress: Observable<Bool> {
 		return isMetadataLoadInProgressSubject
 	}
-	let userDefaults: NSUserDefaultsProtocol
+	let userDefaults: NSUserDefaultsType
 	
-	init(player: RxPlayer, userDefaults: NSUserDefaultsProtocol, cloudResourceClient: CloudResourceClientType) {
+	init(player: RxPlayer, userDefaults: NSUserDefaultsType, cloudResourceClient: CloudResourceClientType) {
 		self.player = player
 		self.userDefaults = userDefaults
 		self.cloudResourceClient = cloudResourceClient

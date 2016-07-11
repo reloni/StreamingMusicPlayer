@@ -1,14 +1,7 @@
-//
-//  CloudResource.swift
-//  CloudMusicPlayer
-//
-//  Created by Anton Efimenko on 25.02.16.
-//  Copyright © 2016 Anton Efimenko. All rights reserved.
-//
-
 import Foundation
-import SwiftyJSON
 import RxSwift
+import RxHttpClient
+import JASON
 
 public enum CloudResourceLoadMode {
 	case CacheAndRemote

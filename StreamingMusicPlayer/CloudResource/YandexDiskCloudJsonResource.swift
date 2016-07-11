@@ -1,14 +1,7 @@
-//
-//  YandexDiskCloudResource.swift
-//  CloudMusicPlayer
-//
-//  Created by Anton Efimenko on 27.02.16.
-//  Copyright © 2016 Anton Efimenko. All rights reserved.
-//
-
 import Foundation
-import SwiftyJSON
 import RxSwift
+import RxHttpClient
+import JASON
 
 public enum YandexDiskError : ErrorType {
 	case tooManyRequests
@@ -16,7 +9,7 @@ public enum YandexDiskError : ErrorType {
 }
 
 public class YandexDiskCloudJsonResource {
-	public static func getRootResource(httpClient: HttpClientProtocol = HttpClient(),
+	public static func getRootResource(httpClient: HttpClientType = HttpClient(),
 	                                   oauth: OAuthType) -> CloudResource {
 		return YandexDiskCloudJsonResource(raw: JSON(["name": "disk", "path": "/"]), httpClient: httpClient, oauth: oauth)
 	}
@@ -24,7 +17,7 @@ public class YandexDiskCloudJsonResource {
 	public static let apiUrl = "https://cloud-api.yandex.net:443/v1/disk"
 	public static let resourcesApiUrl = apiUrl + "/resources"
 	public static let typeIdentifier = "YandexDiskCloudResource"
-	public internal (set) var httpClient: HttpClientProtocol
+	public internal (set) var httpClient: HttpClientType
 	public let oAuthResource: OAuthType
 	public var raw: JSON
 	
@@ -36,14 +29,14 @@ public class YandexDiskCloudJsonResource {
 		return YandexDiskCloudAudioJsonResource.resourcesApiUrl
 	}()
 	
-	init (raw: JSON, httpClient: HttpClientProtocol, oauth: OAuthType) {
+	init (raw: JSON, httpClient: HttpClientType, oauth: OAuthType) {
 		self.raw = raw
 		//self.parent = parent
 		self.oAuthResource = oauth
 		self.httpClient = httpClient
 	}
 	
-	internal func createRequest() -> NSMutableURLRequestProtocol? {
+	internal func createRequest() -> NSMutableURLRequestType? {
 		if oAuthResource.accessToken == nil { return nil }
 		return httpClient.httpUtilities.createUrlRequest(resourcesUrl, parameters: getRequestParameters(), headers: getRequestHeaders())
 	}
@@ -96,7 +89,7 @@ extension YandexDiskCloudJsonResource : CloudResource {
 		}
 		
 		return items.map { item -> CloudResource in
-			return wrapRawData(item)
+			return wrapRawData(JSON(item))
 		}
 	}
 	

@@ -1,15 +1,8 @@
-//
-//  SettingsController.swift
-//  CloudMusicPlayer
-//
-//  Created by Anton Efimenko on 24.01.16.
-//  Copyright © 2016 Anton Efimenko. All rights reserved.
-//
-
 import Foundation
 import RxSwift
 import RxCocoa
 import UIKit
+import RxStreamPlayer
 
 class SettingsController: UIViewController {
 	@IBOutlet weak var logInButton: UIButton!

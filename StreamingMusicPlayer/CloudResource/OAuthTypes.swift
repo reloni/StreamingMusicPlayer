@@ -1,22 +1,16 @@
-//
-//  OAuthTypes.swift
-//  CloudMusicPlayer
-//
-//  Created by Anton Efimenko on 17.05.16.
-//  Copyright © 2016 Anton Efimenko. All rights reserved.
-//
-
 import Foundation
 import RxSwift
+import RxHttpClient
+import RxHttpClientJasonExtension
 
-public struct YandexOAuth {
-	public static let id = "YandexOAuthResource"
-	public let clientId: String
-	public let baseAuthUrl: String
-	public let urlScheme: String
-	public let urlParameters: [String: String]
-	public let keychain: KeychainType
-	public let authenticator: OAuthAuthenticatorType
+struct YandexOAuth {
+	static let id = "YandexOAuthResource"
+	let clientId: String
+	let baseAuthUrl: String
+	let urlScheme: String
+	let urlParameters: [String: String]
+	let keychain: KeychainType
+	let authenticator: OAuthAuthenticatorType
 	
 	internal var tokenKeychainId: String {
 		return "\(YandexOAuth.id)_accessToken"
@@ -26,7 +20,7 @@ public struct YandexOAuth {
 		return "\(YandexOAuth.id)_refreshToken"
 	}
 	
-	public init(baseAuthUrl: String, urlParameters: [String: String], urlScheme: String, clientId: String, keychain: KeychainType,
+	init(baseAuthUrl: String, urlParameters: [String: String], urlScheme: String, clientId: String, keychain: KeychainType,
 	            authenticator: OAuthAuthenticatorType) {
 		self.baseAuthUrl = baseAuthUrl
 		self.urlParameters = urlParameters
@@ -36,43 +30,43 @@ public struct YandexOAuth {
 		self.authenticator = authenticator
 	}
 	
-	public init(clientId: String, urlScheme: String, keychain: KeychainType, authenticator: OAuthAuthenticatorType = OAuthAuthenticator.sharedInstance) {
+	init(clientId: String, urlScheme: String, keychain: KeychainType, authenticator: OAuthAuthenticatorType = OAuthAuthenticator.sharedInstance) {
 		self.init(baseAuthUrl: "https://oauth.yandex.ru/authorize", urlParameters: ["response_type": "token"],
 		          urlScheme: urlScheme, clientId:  clientId, keychain: keychain, authenticator: authenticator)
 	}
 }
 
 extension YandexOAuth : OAuthType {
-	public var resourceDescription: String {
+	var resourceDescription: String {
 		return "Yandex Disk"
 	}
 	
-	public var oauthTypeId: String {
+	var oauthTypeId: String {
 		return "\(YandexOAuth.id)_\(clientId)"
 	}
 	
-	public var authUrl: NSURL? {
+	var authUrl: NSURL? {
 		var params = urlParameters
 		params["client_id"] = clientId
 		return NSURL(baseUrl: baseAuthUrl, parameters: params)
 	}
 	
-	public var accessToken: String? {
+	var accessToken: String? {
 		return keychain.stringForAccount(tokenKeychainId)
 	}
 	
-	public var refreshToken: String? {
+	var refreshToken: String? {
 		return keychain.stringForAccount(refreshTokenKeychainId)
 	}
 	
-	public func canParseCallbackUrl(url: String) -> Bool {
+	func canParseCallbackUrl(url: String) -> Bool {
 		if let schemeEnding = url.rangeOfString(":")?.first {
 			return url.substringToIndex(schemeEnding) == urlScheme
 		}
 		return false
 	}
 	
-	public func authenticate(url: String) -> Observable<OAuthType> {
+	func authenticate(url: String) -> Observable<OAuthType> {
 		return Observable.create { observer in
 			if let start = url.rangeOfString("access_token=")?.endIndex {
 				let substring = url.substringFromIndex(start)
@@ -88,28 +82,28 @@ extension YandexOAuth : OAuthType {
 		}
 	}
 	
-	public func updateToken() -> Observable<OAuthType> {
+	func updateToken() -> Observable<OAuthType> {
 		return Observable.empty()
 	}
 	
-	public func clearTokens() {
+	func clearTokens() {
 		keychain.setString(nil, forAccount: tokenKeychainId, synchronizable: true, background: false)
 		keychain.setString(nil, forAccount: refreshTokenKeychainId, synchronizable: true, background: false)
 		authenticator.sendAuthenticatedObject(self)
 	}
 }
 
-public struct GoogleOAuth {
-	public static let id = "GoogleOAuthResource"
-	public let clientId: String
-	public let baseAuthUrl: String
-	public let urlScheme: String
-	public let urlParameters: [String: String]
-	public let redirectUri: String
-	public let scopes: [String]
-	public let tokenUrl: String
-	public let keychain: KeychainType
-	public let authenticator: OAuthAuthenticatorType
+struct GoogleOAuth {
+	static let id = "GoogleOAuthResource"
+	let clientId: String
+	let baseAuthUrl: String
+	let urlScheme: String
+	let urlParameters: [String: String]
+	let redirectUri: String
+	let scopes: [String]
+	let tokenUrl: String
+	let keychain: KeychainType
+	let authenticator: OAuthAuthenticatorType
 	
 	internal var tokenKeychainId: String {
 		return "\(GoogleOAuth.id)_accessToken"
@@ -119,7 +113,7 @@ public struct GoogleOAuth {
 		return "\(GoogleOAuth.id)_refreshToken"
 	}
 	
-	public init(baseAuthUrl: String, urlParameters: [String: String], urlScheme: String, redirectUri: String,
+	init(baseAuthUrl: String, urlParameters: [String: String], urlScheme: String, redirectUri: String,
 	            scopes: [String], tokenUrl: String, clientId: String, keychain: KeychainType, authenticator: OAuthAuthenticatorType) {
 		self.baseAuthUrl = baseAuthUrl
 		self.urlParameters = urlParameters
@@ -132,7 +126,7 @@ public struct GoogleOAuth {
 		self.authenticator = authenticator
 	}
 	
-	public init(clientId: String, urlScheme: String, redirectUri: String, scopes: [String], keychain: KeychainType,
+	init(clientId: String, urlScheme: String, redirectUri: String, scopes: [String], keychain: KeychainType,
 	            authenticator: OAuthAuthenticatorType = OAuthAuthenticator.sharedInstance) {
 		self.init(baseAuthUrl: "https://accounts.google.com/o/oauth2/v2/auth", urlParameters: ["response_type": "code"],
 		          urlScheme: urlScheme, redirectUri: redirectUri, scopes: scopes, tokenUrl: "https://www.googleapis.com/oauth2/v4/token",
@@ -141,15 +135,15 @@ public struct GoogleOAuth {
 }
 
 extension GoogleOAuth : OAuthType {
-	public var resourceDescription: String {
+	var resourceDescription: String {
 		return "Google Drive"
 	}
 	
-	public var oauthTypeId: String {
+	var oauthTypeId: String {
 		return "\(GoogleOAuth.id)_\(clientId)"
 	}
 	
-	public var authUrl: NSURL? {
+	var authUrl: NSURL? {
 		var params = urlParameters
 		params["client_id"] = clientId
 		params["redirect_uri"] = redirectUri
@@ -157,22 +151,22 @@ extension GoogleOAuth : OAuthType {
 		return NSURL(baseUrl: baseAuthUrl, parameters: params)
 	}
 	
-	public var accessToken: String? {
+	var accessToken: String? {
 		return keychain.stringForAccount(tokenKeychainId)
 	}
 	
-	public var refreshToken: String? {
+	var refreshToken: String? {
 		return keychain.stringForAccount(refreshTokenKeychainId)
 	}
 	
-	public func canParseCallbackUrl(url: String) -> Bool {
+	func canParseCallbackUrl(url: String) -> Bool {
 		if let schemeEnding = url.rangeOfString(":")?.first {
 			return url.substringToIndex(schemeEnding) == urlScheme
 		}
 		return false
 	}
 	
-	public func authenticate(url: String) -> Observable<OAuthType> {
+	func authenticate(url: String) -> Observable<OAuthType> {
 		if let start = url.rangeOfString("code=")?.endIndex {
 			let substring = url.substringFromIndex(start)
 			let end = substring.rangeOfString("&")?.startIndex ?? substring.endIndex
@@ -201,12 +195,12 @@ extension GoogleOAuth : OAuthType {
 		return Observable.empty()
 	}
 	
-	public func updateToken() -> Observable<OAuthType> {
+	func updateToken() -> Observable<OAuthType> {
 		// TODO: implement refresh request for Google
 		return Observable.empty()
 	}
 	
-	public func clearTokens() {
+	func clearTokens() {
 		keychain.setString(nil, forAccount: tokenKeychainId, synchronizable: true, background: false)
 		keychain.setString(nil, forAccount: refreshTokenKeychainId, synchronizable: true, background: false)
 		authenticator.sendAuthenticatedObject(self)

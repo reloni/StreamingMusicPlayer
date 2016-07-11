@@ -1,13 +1,7 @@
-//
-//  MainModel+LoadMetadata.swift
-//  CloudMusicPlayer
-//
-//  Created by Anton Efimenko on 16.06.16.
-//  Copyright © 2016 Anton Efimenko. All rights reserved.
-//
-
 import Foundation
 import RxSwift
+import RxStreamPlayer
+import RxHttpClient
 
 extension MainModel {
 	func loadMetadataObjectForTrackByIndex(index: Int) -> Observable<MediaItemMetadata?> {

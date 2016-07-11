@@ -1,14 +1,7 @@
-//
-//  UniversalTableViewController.swift
-//  CloudMusicPlayer
-//
-//  Created by Anton Efimenko on 21.06.16.
-//  Copyright © 2016 Anton Efimenko. All rights reserved.
-//
-
 import UIKit
 import RxSwift
 import AVFoundation
+import RxStreamPlayer
 
 class UniversalTableViewController: UIViewController {
 	@IBOutlet weak var tableView: UITableView!
@@ -74,8 +67,8 @@ class UniversalTableViewController: UIViewController {
 		mainModel.player.downloadManager.fileStorage.itemStateChanged.bindNext { [weak cell] result in
 			guard let cell = cell where result.uid == trackUid else { return }
 			
-			DispatchQueue.async(.MainQueue) {
-				cell.storageStatusImage?.image = result.to.getImage()
+			dispatch_async(dispatch_get_main_queue()) { [weak cell] in
+				cell?.storageStatusImage?.image = result.to.getImage()
 			}
 		}.addDisposableTo(cell.bag)
 		

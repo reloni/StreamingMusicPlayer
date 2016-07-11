@@ -1,13 +1,4 @@
-//
-//  GoogleDriveCloudAudioJsonResource.swift
-//  CloudMusicPlayer
-//
-//  Created by Anton Efimenko on 02.05.16.
-//  Copyright © 2016 Anton Efimenko. All rights reserved.
-//
-
 import Foundation
-import SwiftyJSON
 import RxSwift
 
 public class GoogleDriveCloudAudioJsonResource : GoogleDriveCloudJsonResource, CloudAudioResource {

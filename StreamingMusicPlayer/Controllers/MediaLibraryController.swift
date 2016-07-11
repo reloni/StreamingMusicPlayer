@@ -1,11 +1,3 @@
-//
-//  MediaLibraryController.swift
-//  CloudMusicPlayer
-//
-//  Created by Anton Efimenko on 18.05.16.
-//  Copyright © 2016 Anton Efimenko. All rights reserved.
-//
-
 import UIKit
 import RxSwift
 import RxCocoa
@@ -261,7 +253,7 @@ class MediaLibraryController: UIViewController {
 				self?.presentViewController(alert, animated: true, completion: nil)
 			}.addDisposableTo(cell.bag)
 			
-			DispatchQueue.async(.MainQueue) { [weak cell] in
+			dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) { [weak cell] in
 				cell?.itemsCountLabel?.text = "Tracks: \(pl.items.count)"
 				if let art = pl.items.first?.album.artwork {
 					cell?.playListImage?.image = UIImage(data: art)

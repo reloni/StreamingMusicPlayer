@@ -1,15 +1,7 @@
-//
-//  CloudResourceCacheProvider.swift
-//  CloudMusicPlayer
-//
-//  Created by Anton Efimenko on 20.04.16.
-//  Copyright © 2016 Anton Efimenko. All rights reserved.
-//
-
 import Foundation
 import Realm
 import RealmSwift
-import SwiftyJSON
+import JASON
 
 public protocol CloudResourceCacheProviderType {
 	func getCachedChilds(parent: CloudResource) -> [CloudResource]
@@ -79,7 +71,7 @@ extension RealmCloudResourceCacheProvider : CloudResourceCacheProviderType {
 				return [CloudResource]()
 			}
 			return parentObject.childs.map { o in
-				return parent.wrapRawData(JSON(data: o.rawData))
+				return parent.wrapRawData(JSON(o.rawData))
 				}.flatMap { $0 }
 		}
 		
@@ -106,6 +98,7 @@ extension RealmCloudResourceCacheProvider : CloudResourceCacheProviderType {
 			if parentObjectUid != nil {
 				existedResource.parent = parentObject
 			}
+
 			existedResource.rawData = resource.raw.safeRawData() ?? NSData()
 			return existedResource
 		}

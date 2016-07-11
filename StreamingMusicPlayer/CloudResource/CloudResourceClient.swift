@@ -1,14 +1,6 @@
-//
-//  CloudResourceClient.swift
-//  CloudMusicPlayer
-//
-//  Created by Anton Efimenko on 04.05.16.
-//  Copyright © 2016 Anton Efimenko. All rights reserved.
-//
-
 import Foundation
 import RxSwift
-import SwiftyJSON
+import RxHttpClient
 
 public protocol CloudResourceClientType {
 	var cacheProvider: CloudResourceCacheProviderType? { get }
