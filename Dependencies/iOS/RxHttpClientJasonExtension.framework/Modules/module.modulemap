@@ -1,0 +1,10 @@
+framework module RxHttpClientJasonExtension {
+  umbrella header "RxHttpClientJasonExtension.h"
+
+  export *
+  module * { export * }
+}
+
+module RxHttpClientJasonExtension.Swift {
+    header "RxHttpClientJasonExtension-Swift.h"
+}

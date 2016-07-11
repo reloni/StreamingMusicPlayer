@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:../RxStreamPlayer/RxStreamPlayer.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:../RxHttpClientJasonExtension/RxHttpClientJasonExtension.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:../RxHttpClient/RxHttpClient.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:StreamingMusicPlayer.xcodeproj">
+   </FileRef>
+</Workspace>
