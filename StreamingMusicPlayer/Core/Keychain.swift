@@ -154,7 +154,7 @@ struct Keychain : KeychainType {
 				// Reasonable people may disagree with this approach.
 				deleteAccount(account)
 				
-				// TODO: Fidn way to save keychain tokens in memory and replace kSecAttrAccessibleAlwaysThisDeviceOnly with kSecAttrAccessibleWhenUnlocked
+				// SMP_Warning: Find way to save keychain tokens in memory and replace kSecAttrAccessibleAlwaysThisDeviceOnly with kSecAttrAccessibleWhenUnlocked
 				// Add it.
 				try SecItemWrapper.add([
 					kSecClass as String: kSecClassGenericPassword,
