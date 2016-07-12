@@ -196,7 +196,7 @@ extension GoogleOAuth : OAuthType {
 	}
 	
 	func updateToken() -> Observable<OAuthType> {
-		// TODO: implement refresh request for Google
+		// SMP_Warning: implement refresh request for Google
 		return Observable.empty()
 	}
 	

@@ -464,7 +464,11 @@
 				6ECBE7731D2F8B4D005423F8 /* Frameworks */,
 				6ECBE7741D2F8B4D005423F8 /* Resources */,
 				6E2658131D32B38C005570DA /* Copy in development frameworks */,
-				6E2658121D329D81005570DA /* Copy carthage frameworks */,
+				6E2658121D329D81005570DA /* Copy carthage common frameworks */,
+				6EACAF431D34F4B1002D0EA4 /* Copy carthage debug frameworks */,
+				6EACAF421D34EEE8002D0EA4 /* Copy carthage release frameworks */,
+				6EACAF401D34C937002D0EA4 /* Increment build number */,
+				6EACAF411D34C976002D0EA4 /* Custom warning */,
 			);
 			buildRules = (
 			);
@@ -524,6 +528,7 @@
 				TargetAttributes = {
 					6ECBE7751D2F8B4D005423F8 = {
 						CreatedOnToolsVersion = 7.3;
+						DevelopmentTeam = SJMSRXG797;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -595,7 +600,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		6E2658121D329D81005570DA /* Copy carthage frameworks */ = {
+		6E2658121D329D81005570DA /* Copy carthage common frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -605,12 +610,9 @@
 				"$(SRCROOT)/Dependencies/iOS/RxCocoa.framework",
 				"$(SRCROOT)/Dependencies/iOS/Realm.framework",
 				"$(SRCROOT)/Dependencies/iOS/RealmSwift.framework",
-				"$(SRCROOT)/Dependencies/iOS/RxHttpClient.framework",
-				"$(SRCROOT)/Dependencies/iOS/RxHttpClientJasonExtension.framework",
-				"$(SRCROOT)/Dependencies/iOS/RxStreamPlayer.framework",
 				"$(SRCROOT)/Dependencies/iOS/JASON.framework",
 			);
-			name = "Copy carthage frameworks";
+			name = "Copy carthage common frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -655,6 +657,68 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/usr/local/bin/carthage copy-frameworks";
+		};
+		6EACAF401D34C937002D0EA4 /* Increment build number */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Increment build number";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/bin/sh ${SRCROOT}/Scripts/BumpBuildNumber.sh";
+		};
+		6EACAF411D34C976002D0EA4 /* Custom warning */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Custom warning";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/bin/sh ${SRCROOT}/Scripts/Warning.sh";
+		};
+		6EACAF421D34EEE8002D0EA4 /* Copy carthage release frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Dependencies/iOS/Release/RxHttpClient.framework",
+				"${SRCROOT}/Dependencies/iOS/Release/RxHttpClientJasonExtension.framework",
+				"${SRCROOT}/Dependencies/iOS/Release/RxStreamPlayer.framework",
+			);
+			name = "Copy carthage release frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ \"${CONFIGURATION}\" = \"Release\" ]; then\n/usr/local/bin/carthage copy-frameworks\nfi";
+		};
+		6EACAF431D34F4B1002D0EA4 /* Copy carthage debug frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/Dependencies/iOS/RxHttpClient.framework",
+				"$(SRCROOT)/Dependencies/iOS/RxHttpClientJasonExtension.framework",
+				"$(SRCROOT)/Dependencies/iOS/RxStreamPlayer.framework",
+			);
+			name = "Copy carthage debug frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ \"${CONFIGURATION}\" = \"Debug\" ]; then\n/usr/local/bin/carthage copy-frameworks\nfi";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -868,14 +932,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Dependencies/iOS",
 				);
 				INFOPLIST_FILE = StreamingMusicPlayer/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.AntonEfimenko.StreamingMusicPlayer;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AntonEfimenko.CloudMusicPlayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "d2fed0c9-d5ee-4719-a5ea-60429f51a120";
 			};
 			name = Debug;
 		};
@@ -883,14 +949,17 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Anton Efimenko (SJMSRXG797)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Dependencies/iOS",
 				);
 				INFOPLIST_FILE = StreamingMusicPlayer/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.AntonEfimenko.StreamingMusicPlayer;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AntonEfimenko.CloudMusicPlayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "d2fed0c9-d5ee-4719-a5ea-60429f51a120";
 			};
 			name = Release;
 		};
