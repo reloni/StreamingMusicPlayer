@@ -1,8 +1,9 @@
 import XCTest
 import JASON
+import OHHTTPStubs
 @testable import StreamingMusicPlayer
 import RxSwift
-import RxHttpClient
+@testable import RxHttpClient
 
 extension JSON {
 	public static func getJsonFromFile(fileName: String) -> JSON? {
@@ -37,7 +38,7 @@ class YandexCloudResourceTests: XCTestCase {
 		utilities = FakeHttpUtilities()
 		utilities.streamObserver = streamObserver
 		utilities.fakeSession = session
-		httpClient = HttpClient(httpUtilities: utilities)
+		httpClient = HttpClient(sessionConfiguration: NSURLSessionConfiguration.defaultSessionConfiguration(), httpUtilities: utilities)
 		//oauthResource = OAuthResourceBase(id: "fakeOauthResource", authUrl: "https://fakeOauth.com", clientId: "fakeClientId", tokenId: "fakeTokenId")
 		oauthResource = YandexOAuth(clientId: "fakeClientId", urlScheme: "fakeOauthResource", keychain: FakeKeychain(), authenticator: OAuthAuthenticator())
 		(oauthResource as! YandexOAuth).keychain.setString("", forAccount: (oauthResource as! YandexOAuth).tokenKeychainId, synchronizable: false, background: false)
@@ -121,12 +122,14 @@ class YandexCloudResourceTests: XCTestCase {
 	
 	func testDownloadUrlWithRetry() {
 		var attemptsCounter = 0
+		/*
 		session.task?.taskProgress.bindNext { progress in
 			if case .resume(let tsk) = progress {
+				print("resuming fake task")
 				//tsk.completion?(nil, nil, NSError(domain: "TestDomain", code: 1, userInfo: nil))
 				var sendData: NSData!
 				if attemptsCounter < 3 {
-					let jsonError: JSON = ["message": "Слишком много запросов", "error": "TooManyRequestsError", "description": "Too Many Requests"]
+					let jsonError: JSON = ["message": "Слишком много запросов \(attemptsCounter)", "error": "TooManyRequestsError", "description": "Too Many Requests"]
 					sendData = jsonError.safeRawData()!
 					attemptsCounter += 1
 				} else {
@@ -138,18 +141,35 @@ class YandexCloudResourceTests: XCTestCase {
 				}
 			}
 		}.addDisposableTo(bag)
+*/
+		
+		stub({ $0.URL?.absoluteString == "https://cloud-api.yandex.net:443/v1/disk/resources/download?path=someResource"	}) { _ in
+			//let jsonData = try! NSJSONSerialization.dataWithJSONObject(["Field1": "Data1", "Field2": "Data2"], options: .PrettyPrinted)
+			//return OHHTTPStubsResponse(data: jsonData, statusCode: 200, headers: nil)
+			var sendData: NSData!
+			if attemptsCounter < 3 {
+				let jsonError: JSON = ["message": "Слишком много запросов \(attemptsCounter)", "error": "TooManyRequestsError", "description": "Too Many Requests"]
+				sendData = jsonError.safeRawData()!
+				attemptsCounter += 1
+			} else {
+				let linkJson: JSON = ["href": "https://link.com"]
+				sendData = linkJson.safeRawData()!
+			}
+			
+			return OHHTTPStubsResponse(data: sendData, statusCode: 200, headers: nil)
+		}
 		
 		let expectation = expectationWithDescription("Should return downloadUrl")
 		
 		// create audioResource with empty json (it doesn't need for this test)
-		let audioResource = YandexDiskCloudAudioJsonResource(raw: ["path": "someResource"], httpClient: httpClient, oauth: oauthResource)
+		let audioResource = YandexDiskCloudAudioJsonResource(raw: ["path": "someResource"], httpClient: HttpClient(sessionConfiguration: NSURLSessionConfiguration.defaultSessionConfiguration()), oauth: oauthResource)
 		audioResource.downloadUrlErrorRetryDelayTime = 0.005
 		audioResource.downloadUrl.bindNext { url in
 			XCTAssertEqual("https://link.com", url)
 			expectation.fulfill()
 		}.addDisposableTo(bag)
 		
-		waitForExpectationsWithTimeout(1, handler: nil)
+		waitForExpectationsWithTimeout(5, handler: nil)
 	}
 	
 	func testNotReturnDownloadUrlDueToErrors() {

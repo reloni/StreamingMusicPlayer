@@ -104,6 +104,7 @@ struct GoogleOAuth {
 	let tokenUrl: String
 	let keychain: KeychainType
 	let authenticator: OAuthAuthenticatorType
+	let httpClient: HttpClientType
 	
 	internal var tokenKeychainId: String {
 		return "\(GoogleOAuth.id)_accessToken"
@@ -113,8 +114,15 @@ struct GoogleOAuth {
 		return "\(GoogleOAuth.id)_refreshToken"
 	}
 	
-	init(baseAuthUrl: String, urlParameters: [String: String], urlScheme: String, redirectUri: String,
-	            scopes: [String], tokenUrl: String, clientId: String, keychain: KeychainType, authenticator: OAuthAuthenticatorType) {
+	init(baseAuthUrl: String,
+	     urlParameters: [String: String],
+	     urlScheme: String,
+	     redirectUri: String,
+	     scopes: [String],
+	     tokenUrl: String,
+	     clientId: String,
+	     keychain: KeychainType,
+	     authenticator: OAuthAuthenticatorType, httpClient: HttpClientType) {
 		self.baseAuthUrl = baseAuthUrl
 		self.urlParameters = urlParameters
 		self.urlScheme = urlScheme
@@ -124,13 +132,19 @@ struct GoogleOAuth {
 		self.tokenUrl = tokenUrl
 		self.keychain = keychain
 		self.authenticator = authenticator
+		self.httpClient = httpClient
 	}
 	
-	init(clientId: String, urlScheme: String, redirectUri: String, scopes: [String], keychain: KeychainType,
-	            authenticator: OAuthAuthenticatorType = OAuthAuthenticator.sharedInstance) {
+	init(clientId: String,
+	     urlScheme: String,
+	     redirectUri: String,
+	     scopes: [String],
+	     keychain: KeychainType,
+	     authenticator: OAuthAuthenticatorType = OAuthAuthenticator.sharedInstance,
+	     httpClient: HttpClientType = HttpClient(urlSession: NSURLSession.sharedSession())) {
 		self.init(baseAuthUrl: "https://accounts.google.com/o/oauth2/v2/auth", urlParameters: ["response_type": "code"],
 		          urlScheme: urlScheme, redirectUri: redirectUri, scopes: scopes, tokenUrl: "https://www.googleapis.com/oauth2/v4/token",
-		          clientId:  clientId, keychain: keychain, authenticator: authenticator)
+		          clientId:  clientId, keychain: keychain, authenticator: authenticator, httpClient: httpClient)
 	}
 }
 
@@ -175,9 +189,8 @@ extension GoogleOAuth : OAuthType {
 			// perform second request in order to finally receive access token
 			if let tokenUrl = NSURL(baseUrl: self.tokenUrl,
 			                        parameters: ["code": code, "client_id": self.clientId, "redirect_uri": self.redirectUri, "grant_type": "authorization_code"]) {
-				let request = HttpUtilities().createUrlRequest(tokenUrl)
+				let request = httpClient.createUrlRequest(tokenUrl)
 				request.setHttpMethod("POST")
-				let httpClient = HttpClient()
 				return httpClient.loadJsonData(request).flatMapLatest { result -> Observable<OAuthType> in
 					guard case Result.success(let box) = result else { return Observable.empty() }
 					let response = box.value

@@ -19,12 +19,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 			NSLog("Documents Path: %@", NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first ?? "")
 		#endif
 		
-		
-		let player = RxPlayer(repeatQueue: false, shuffleQueue: false,
-		                      downloadManager: DownloadManager(saveData: true, fileStorage: LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: true),
-														httpUtilities: HttpUtilities()),
-		                      streamPlayerUtilities: StreamPlayerUtilities(),
-		                      mediaLibrary: RealmMediaLibrary())
+		let downloadManager = DownloadManager(saveData: true,
+		                                      fileStorage: LocalNsUserDefaultsStorage(persistInformationAboutSavedFiles: true),
+		                                      httpClient: HttpClient())
+		let player = RxPlayer(repeatQueue: false,
+		                      shuffleQueue: false,
+		                      downloadManager: downloadManager)
 		
 		let cloudResourceClient = CloudResourceClient(cacheProvider: RealmCloudResourceCacheProvider())
 		let cloudResourceLoader = CloudResourceLoader(cacheProvider: cloudResourceClient.cacheProvider!,
