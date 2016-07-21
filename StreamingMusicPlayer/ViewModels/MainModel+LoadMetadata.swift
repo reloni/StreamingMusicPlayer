@@ -102,7 +102,6 @@ extension MainModel {
 				if resource is CloudAudioResource {
 					return Observable.just(resource)
 				} else {
-					
 					return object.cloudResourceClient.loadChildResourcesRecursive(resource, loadMode: CloudResourceLoadMode.RemoteOnly)
 						.flatMapLatest { result -> Observable<CloudResource> in
 							if case Result.success(let box) = result {
@@ -111,7 +110,6 @@ extension MainModel {
 								return Observable.empty()
 							}
 					}
-					//return resource.loadChildResourcesRecursive()
 				}
 				}.filter { $0 is CloudAudioResource
 				}.map { item -> StreamResourceIdentifier in return item as! StreamResourceIdentifier

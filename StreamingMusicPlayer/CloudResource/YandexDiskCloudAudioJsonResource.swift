@@ -15,8 +15,8 @@ public class YandexDiskCloudAudioJsonResource : YandexDiskCloudJsonResource, Clo
 		guard let url = downloadResourceUrl else {
 			return Observable.empty()
 		}
-		
-		let request = httpClient.httpUtilities.createUrlRequest(url, headers: getRequestHeaders())
+
+		let request = httpClient.createUrlRequest(url, headers: getRequestHeaders())
 		return Observable.create { [weak self] observer in
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 			

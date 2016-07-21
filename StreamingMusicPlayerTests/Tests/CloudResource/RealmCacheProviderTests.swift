@@ -4,7 +4,7 @@ import RealmSwift
 import Realm
 import JASON
 import RxSwift
-import RxHttpClient
+@testable import RxHttpClient
 
 func fillRealmCloudResourceCacheProviderWithTestData() {
 	let oauthResource = YandexOAuth()//OAuthResourceBase(id: "", authUrl: "", clientId: nil, tokenId: nil)
@@ -57,7 +57,7 @@ class RealmCacheProviderTests: XCTestCase {
 		request = FakeRequest()
 		session = FakeSession(fakeTask: FakeDataTask(completion: nil))
 		utilities = FakeHttpUtilities()
-		httpClient = HttpClient(httpUtilities: utilities)
+		httpClient = HttpClient(sessionConfiguration: NSURLSessionConfiguration.defaultSessionConfiguration(), httpUtilities: utilities)
 		//oauthResource = OAuthResourceBase(id: "fakeOauthResource", authUrl: "https://fakeOauth.com", clientId: "fakeClientId", tokenId: "fakeTokenId")
 		oauthResource = YandexOAuth(clientId: "fakeClientId", urlScheme: "fakeOauthResource", keychain: FakeKeychain(), authenticator: OAuthAuthenticator())
 		(oauthResource as! YandexOAuth).keychain.setString("", forAccount: (oauthResource as! YandexOAuth).tokenKeychainId, synchronizable: false, background: false)

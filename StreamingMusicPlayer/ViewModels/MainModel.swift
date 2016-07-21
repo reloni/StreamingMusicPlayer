@@ -89,7 +89,9 @@ class MainModel {
 			try playerPersistanceProvider.loadPlayerState(player)
 			latestShuffleMode = player.shuffleQueue
 		} catch let error as NSError {
-			NSLog("Error while load player state: \(error.localizedDescription)")
+			#if DEBUG
+				NSLog("Error while load player state: \(error.localizedDescription)")
+			#endif
 		}
 	}
 	
@@ -98,7 +100,9 @@ class MainModel {
 			let persistance = RealmRxPlayerPersistenceProvider()
 			try persistance.savePlayerState(MainModel.sharedInstance.player)
 		} catch let error as NSError {
-			NSLog("Error while save player state: \(error.localizedDescription)")
+			#if DEBUG
+				NSLog("Error while save player state: \(error.localizedDescription)")
+			#endif
 		}
 	}
 }
