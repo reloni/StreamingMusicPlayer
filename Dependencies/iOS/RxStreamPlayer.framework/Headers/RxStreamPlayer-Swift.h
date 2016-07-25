@@ -93,10 +93,8 @@ typedef int swift_int4  __attribute__((__ext_vector_type__(4)));
 #endif
 #if defined(__has_feature) && __has_feature(modules)
 @import AVFoundation;
-@import ObjectiveC;
 @import Foundation;
 @import RealmSwift;
-@import Foundation.NSURLSession;
 @import UIKit;
 #endif
 
@@ -108,24 +106,6 @@ typedef int swift_int4  __attribute__((__ext_vector_type__(4)));
 
 
 @interface AVAssetResourceLoader (SWIFT_EXTENSION(RxStreamPlayer))
-@end
-
-
-SWIFT_CLASS("_TtC14RxStreamPlayer35AVAssetResourceLoaderEventsObserver")
-@interface AVAssetResourceLoaderEventsObserver : NSObject
-@property (nonatomic) BOOL shouldWaitForLoading;
-- (nonnull instancetype)initWithShouldWaitForLoading:(BOOL)shouldWaitForLoading OBJC_DESIGNATED_INITIALIZER;
-@end
-
-@class AVAssetResourceLoadingRequest;
-
-@interface AVAssetResourceLoaderEventsObserver (SWIFT_EXTENSION(RxStreamPlayer)) <AVAssetResourceLoaderDelegate>
-- (BOOL)resourceLoader:(AVAssetResourceLoader * _Nonnull)resourceLoader shouldWaitForLoadingOfRequestedResource:(AVAssetResourceLoadingRequest * _Nonnull)loadingRequest;
-- (void)resourceLoader:(AVAssetResourceLoader * _Nonnull)resourceLoader didCancelLoadingRequest:(AVAssetResourceLoadingRequest * _Nonnull)loadingRequest;
-@end
-
-
-@interface AVAssetResourceLoaderEventsObserver (SWIFT_EXTENSION(RxStreamPlayer))
 @end
 
 
@@ -268,27 +248,6 @@ SWIFT_CLASS("_TtC14RxStreamPlayer10RealmTrack")
 
 
 @interface RealmTrack (SWIFT_EXTENSION(RxStreamPlayer))
-@end
-
-@class NSMutableURLRequest;
-
-SWIFT_CLASS("_TtC14RxStreamPlayer14StreamDataTask")
-@interface StreamDataTask : NSObject
-- (nonnull instancetype)initWithRequest:(NSMutableURLRequest * _Nonnull)request OBJC_DESIGNATED_INITIALIZER;
-- (nonnull instancetype)initWithUrl:(NSURL * _Nonnull)url headers:(NSDictionary<NSString *, NSString *> * _Nullable)headers;
-- (void)resume;
-@end
-
-@class NSURLSession;
-@class NSURLSessionDataTask;
-@class NSURLResponse;
-@class NSURLSessionTask;
-@class NSError;
-
-@interface StreamDataTask (SWIFT_EXTENSION(RxStreamPlayer)) <NSURLSessionDataDelegate, NSURLSessionDelegate, NSURLSessionTaskDelegate>
-- (void)URLSession:(NSURLSession * _Nonnull)session dataTask:(NSURLSessionDataTask * _Nonnull)dataTask didReceiveResponse:(NSURLResponse * _Nonnull)response completionHandler:(void (^ _Nonnull)(NSURLSessionResponseDisposition))completionHandler;
-- (void)URLSession:(NSURLSession * _Nonnull)session dataTask:(NSURLSessionDataTask * _Nonnull)dataTask didReceiveData:(NSData * _Nonnull)data;
-- (void)URLSession:(NSURLSession * _Nonnull)session task:(NSURLSessionTask * _Nonnull)task didCompleteWithError:(NSError * _Nullable)error;
 @end
 
 

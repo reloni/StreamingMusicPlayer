@@ -16,12 +16,10 @@ class CloudResourceModel {
 		return resource.name
 	}
 	
-	var content: Observable<Result<[CloudResource]>> {
+	var content: Observable<[CloudResource]> {
 		return cloudResourceClient.loadChildResources(resource, loadMode: CloudResourceLoadMode.CacheAndRemote)
 			.doOnNext { [weak self] result in
-				if case Result.success(let box) = result {
-					self?.cachedContent = box.value
-				}
+				self?.cachedContent = result
 		}
 	}
 }

@@ -15,29 +15,36 @@ public class YandexDiskCloudAudioJsonResource : YandexDiskCloudJsonResource, Clo
 		guard let url = downloadResourceUrl else {
 			return Observable.empty()
 		}
-
+		
 		let request = httpClient.createUrlRequest(url, headers: getRequestHeaders())
 		return Observable.create { [weak self] observer in
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 			
 			let task = object.httpClient.loadJsonData(request).flatMapLatest { result -> Observable<String?> in
+				/*
 				if case Result.success(let box) = result {
-					// check server side error
-					if let error = object.checkError(box.value) { return Observable.error(error) }
-					
-					if let href = box.value["href"].string {
-						return Observable.just(href)
-					}
+				// check server side error
+				if let error = object.checkError(box.value) { return Observable.error(error) }
+				
+				if let href = box.value["href"].string {
+				return Observable.just(href)
+				}
 				} else if case Result.error(let error) = result {
-					return Observable.error(error)
+				return Observable.error(error)
 				}
 				// if no error returned and no href key in JSON, return nil
-				return Observable.just(nil)
-				}.retryWithDelay(object.downloadUrlErrorRetryDelayTime, maxAttemptCount: object.downloadUrlRetryMaxAttemptCount, retryReturnObject: "") { error in
-				if case YandexDiskError.tooManyRequests = error {
-					return true
+				return Observable.just(nil)*/
+				guard let href = result["href"].string else {
+					return Observable.just(nil)
 				}
-				return false
+				
+				return Observable.just(href)
+				
+				}.retryWithDelay(object.downloadUrlErrorRetryDelayTime, maxAttemptCount: object.downloadUrlRetryMaxAttemptCount, retryReturnObject: "") { error in
+					if case YandexDiskError.tooManyRequests = error {
+						return true
+					}
+					return false
 				}.doOnError { _ in observer.onCompleted() }.bindNext { link in
 					guard let link = link else { observer.onCompleted(); return }
 					observer.onNext(link)

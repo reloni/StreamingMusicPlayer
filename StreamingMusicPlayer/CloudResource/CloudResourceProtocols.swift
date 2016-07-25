@@ -27,7 +27,7 @@ public protocol CloudResource {
 	var resourcesUrl: String { get }
 	func getRequestHeaders() -> [String: String]?
 	func getRequestParameters() -> [String: String]?
-	func loadChildResources() -> Observable<Result<JSON>>
+	func loadChildResources() -> Observable<JSON>
 	func deserializeResponse(json: JSON) -> [CloudResource]
 	func wrapRawData(json: JSON) -> CloudResource
 }

@@ -104,11 +104,7 @@ extension MainModel {
 				} else {
 					return object.cloudResourceClient.loadChildResourcesRecursive(resource, loadMode: CloudResourceLoadMode.RemoteOnly)
 						.flatMapLatest { result -> Observable<CloudResource> in
-							if case Result.success(let box) = result {
-								return box.value.toObservable()
-							} else {
-								return Observable.empty()
-							}
+							return result.toObservable()
 					}
 				}
 				}.filter { $0 is CloudAudioResource
