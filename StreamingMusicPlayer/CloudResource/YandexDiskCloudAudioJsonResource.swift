@@ -21,6 +21,7 @@ public class YandexDiskCloudAudioJsonResource : YandexDiskCloudJsonResource, Clo
 			guard let object = self else { observer.onCompleted(); return NopDisposable.instance }
 			
 			let task = object.httpClient.loadJsonData(request).flatMapLatest { result -> Observable<String?> in
+				if let error = object.checkError(result) { return Observable.error(error) }
 				/*
 				if case Result.success(let box) = result {
 				// check server side error
