@@ -69,11 +69,9 @@ class PlayerController: UIViewController {
 		let concurrentScheduler = ConcurrentDispatchQueueScheduler.utility
 		
 		MainModel.sharedInstance.player.currentItem.subscribeOn(concurrentScheduler).observeOn(concurrentScheduler)
-			.flatMapLatest { e -> Observable<Result<MediaItemMetadataType?>> in
+			.flatMapLatest { e -> Observable<MediaItemMetadataType?> in
 			guard let e = e else { return Observable.empty() }
 			return MainModel.sharedInstance.player.loadMetadata(e.streamIdentifier)
-			}.map { result -> MediaItemMetadataType? in
-				if case Result.success(let box) = result { return box.value } else { return nil }
 			}.observeOn(MainScheduler.instance).bindNext { [weak self] meta in
 				guard let object = self, meta = meta else { return }
 				object.fullTimeLabel.text = meta.duration?.asTimeString

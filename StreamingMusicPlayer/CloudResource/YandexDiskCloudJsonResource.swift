@@ -76,7 +76,7 @@ extension YandexDiskCloudJsonResource : CloudResource {
 		return ["path": uid]
 	}
 	
-	public func loadChildResources() -> Observable<Result<JSON>> {
+	public func loadChildResources() -> Observable<JSON> {
 		guard let request = createRequest() else {
 			return Observable.empty()
 		}

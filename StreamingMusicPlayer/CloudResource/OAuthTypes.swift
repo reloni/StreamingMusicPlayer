@@ -191,9 +191,7 @@ extension GoogleOAuth : OAuthType {
 			                        parameters: ["code": code, "client_id": self.clientId, "redirect_uri": self.redirectUri, "grant_type": "authorization_code"]) {
 				let request = httpClient.createUrlRequest(tokenUrl)
 				request.setHttpMethod("POST")
-				return httpClient.loadJsonData(request).flatMapLatest { result -> Observable<OAuthType> in
-					guard case Result.success(let box) = result else { return Observable.empty() }
-					let response = box.value
+				return httpClient.loadJsonData(request).flatMapLatest { response -> Observable<OAuthType> in
 					if let accessToken = response["access_token"].string {
 						self.keychain.setString(accessToken, forAccount: self.tokenKeychainId, synchronizable: true, background: false)
 					}
