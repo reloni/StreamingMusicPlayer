@@ -24,8 +24,8 @@ class YandexOAuthTests: XCTestCase {
 	func testAuthUrl() {
 		let oauth = YandexOAuth(baseAuthUrl: "http://base.com", urlParameters: ["param1": "value1", "param2": "value2"], urlScheme: "testchheme",
 		                        clientId: "fake_id", keychain: FakeKeychain(), authenticator: OAuthAuthenticator())
-		XCTAssertTrue(oauth.authUrl!.isEqualsToUrl(
-			NSURL(baseUrl: "http://base.com", parameters: ["client_id": "fake_id", "param1": "value1", "param2": "value2"])!))
+		
+		XCTAssertEqual(true, oauth.authUrl!.isEqualsToUrl(NSURL(baseUrl: "http://base.com", parameters: ["client_id": "fake_id", "param1": "value1", "param2": "value2"])!))
 	}
 	
 	func testCanParseUrl() {

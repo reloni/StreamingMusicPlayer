@@ -1,3 +1,0 @@
-framework module RxStreamPlayer {
-    header "RxStreamPlayer-Swift.h"
-}

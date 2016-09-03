@@ -5,17 +5,15 @@ import RxSwift
 import Realm
 import RealmSwift
 @testable import RxHttpClient
+import OHHTTPStubs
 
 class CloudResourceClientYandexTests: XCTestCase {
 	
 	var bag: DisposeBag!
-	var request: FakeRequest!
-	var session: FakeSession!
-	var utilities: FakeHttpUtilities!
 	var oauthResource: OAuthType!
 	var httpClient: HttpClientType!
 	var rootResource: CloudResource!
-	var streamObserver: NSURLSessionDataEventsObserver!
+	let authKey = "fake_auth_key"
 	
 	override func setUp() {
 		super.setUp()
@@ -24,16 +22,9 @@ class CloudResourceClientYandexTests: XCTestCase {
 		Realm.Configuration.defaultConfiguration.inMemoryIdentifier = self.name
 		
 		bag = DisposeBag()
-		streamObserver = NSURLSessionDataEventsObserver()
-		request = FakeRequest()
-		session = FakeSession(fakeTask: FakeDataTask(completion: nil))
-		utilities = FakeHttpUtilities()
-		utilities.fakeSession = session
-		utilities.streamObserver = streamObserver
-		httpClient = HttpClient(sessionConfiguration: NSURLSessionConfiguration.defaultSessionConfiguration(), httpUtilities: utilities)
+		httpClient = HttpClient()
 		oauthResource = YandexOAuth(clientId: "fakeClientId", urlScheme: "fakeOauthResource", keychain: FakeKeychain(), authenticator: OAuthAuthenticator())
-		(oauthResource as! YandexOAuth).keychain.setString("", forAccount: (oauthResource as! YandexOAuth).tokenKeychainId, synchronizable: false, background: false)
-			//OAuthResourceBase(id: "fakeOauthResource", authUrl: "https://fakeOauth.com", clientId: "fakeClientId", tokenId: "fakeTokenId")
+		(oauthResource as! YandexOAuth).keychain.setString(authKey, forAccount: (oauthResource as! YandexOAuth).tokenKeychainId, synchronizable: false, background: false)
 		rootResource = YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource)
 	}
 	
@@ -41,21 +32,18 @@ class CloudResourceClientYandexTests: XCTestCase {
 		// Put teardown code here. This method is called after the invocation of each test method in the class.
 		super.tearDown()
 		bag = nil
-		request = nil
-		session = nil
-		utilities = nil
 	}
 	
 	func testLoadRootData() {
-		session.task?.taskProgress.bindNext { progress in
-			if case .resume(let tsk) = progress {
-				let json = JSON.getJsonFromFile("YandexRoot")
-				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					//tsk.completion?(json?.rawDataSafe(), nil, nil)
-					self.session.sendData(tsk, data: json?.safeRawData(), streamObserver: self.streamObserver)
-				}
-			}
-			}.addDisposableTo(bag)
+		stub({ request in
+			guard request.URL?.absoluteString == "https://cloud-api.yandex.net:443/v1/disk/resources?path=/" else { return false }
+			guard let key = request.allHTTPHeaderFields?["Authorization"] where key == self.authKey else { return false }
+			return true
+		}) { _ in
+			let json = JSON.getJsonFromFile("YandexRoot")!
+			return OHHTTPStubsResponse(data: json.safeRawData()!, statusCode: 200, headers: nil)
+		}
+		
 		
 		let expectation = expectationWithDescription("Should return correct json data from YandexRoot file")
 
@@ -71,54 +59,54 @@ class CloudResourceClientYandexTests: XCTestCase {
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
 	
+	
 	func testErrorWhileLoadRootData() {
-		session.task?.taskProgress.bindNext { progress in
-			if case .resume(let tsk) = progress {
-				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					//tsk.completion?(nil, nil, NSError(domain: "TestDomain", code: 1, userInfo: nil))
-					self.session.sendError(tsk, error: NSError(domain: "TestDomain", code: 1, userInfo: nil), streamObserver: self.streamObserver)
-				}
-			}
-			}.addDisposableTo(bag)
+		stub({ request in
+			guard request.URL?.absoluteString == "https://cloud-api.yandex.net:443/v1/disk/resources?path=/" else { return false }
+			guard let key = request.allHTTPHeaderFields?["Authorization"] where key == self.authKey else { return false }
+			return true
+		}) { _ in
+			return OHHTTPStubsResponse(error: NSError(domain: "TestDomain", code: 1, userInfo: nil))
+		}
 		
 		let expectation = expectationWithDescription("Should return error")
 		
 		let client = CloudResourceClient()
-		//YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpClient)?.doOnError { error in
-		client.loadChildResources(rootResource, loadMode: .CacheAndRemote).doOnError { error in
-			if (error as NSError).code == 1 {
+		client.loadChildResources(rootResource, loadMode: .CacheAndRemote).doOnError { e in
+			guard case HttpClientError.ClientSideError(let error) = e else { return }
+			if error.code == 1 {
 				expectation.fulfill()
 			}
 			}.subscribe().addDisposableTo(bag)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
-	
+
 	func testTerminateWhileLoadRootData() {
 		let expectation = expectationWithDescription("Should cancel task")
 		
-		session.task?.taskProgress.bindNext { progress in
-			if case .resume(_) = progress {
-				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					for _ in 0...10 {
-						sleep(1)
-					}
+		let fakeSession = FakeSession()
+		fakeSession.task = FakeDataTask(resumeClosure: {
+			dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
+				for _ in 0...10 {
+					sleep(1)
 				}
-			} else if case .cancel(_) = progress {
-				expectation.fulfill()
 			}
-			}.addDisposableTo(bag)
+		}, cancelClosure: { expectation.fulfill() })
+		
+		let fakeClient = HttpClient(session: fakeSession)
+		let fakeResource = YandexDiskCloudJsonResource.getRootResource(fakeClient, oauth: oauthResource)
 		
 		let client = CloudResourceClient()
 		//let request = YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpClient)?
-		let request = client.loadChildResources(rootResource, loadMode: .CacheAndRemote)
+		let request = client.loadChildResources(fakeResource, loadMode: .CacheAndRemote)
 			.bindNext { _ in
 		}
 		request.dispose()
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
-	
+
 	func testLoadChilds() {
 		let expectation = expectationWithDescription("Should return childs")
 		
@@ -127,23 +115,19 @@ class CloudResourceClientYandexTests: XCTestCase {
 			return
 		}
 		let item = YandexDiskCloudJsonResource(raw: rootItem, httpClient: httpClient, oauth: oauthResource)
-		//let item = YandexDiskCloudJsonResource(raw: rootItem, oAuthResource: oauthResource, parent: nil, httpClient: httpClient)
 		
-		session.task?.taskProgress.bindNext { progress in
-			if case .resume(let tsk) = progress {
-				XCTAssertEqual(NSURL(baseUrl: item.resourcesUrl, parameters: item.getRequestParameters())?.absoluteString, tsk.originalRequest?.URL?.absoluteString, "Check invoke url")
-				let json = JSON.getJsonFromFile("YandexMusicFolderContents")
-				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					//tsk.completion?(json?.rawDataSafe(), nil, nil)
-					self.session.sendData(tsk, data: json?.safeRawData(), streamObserver: self.streamObserver)
-				}
-			}
-			}.addDisposableTo(bag)
+		stub({ request in
+			guard request.URL?.absoluteString == "https://cloud-api.yandex.net:443/v1/disk/resources?path=disk:/Music" else { return false }
+			guard let key = request.allHTTPHeaderFields?["Authorization"] where key == self.authKey else { return false }
+			return true
+		}) { _ in
+			let json = JSON.getJsonFromFile("YandexMusicFolderContents")!
+			return OHHTTPStubsResponse(data: json.safeRawData()!, statusCode: 200, headers: nil)
+		}
 		
 		var loadedChilds: [CloudResource]?
 		
 		let cliet = CloudResourceClient()
-		//item.loadChildResources().bindNext { childs in
 		cliet.loadChildResources(item, loadMode: .CacheAndRemote).bindNext { result in
 			loadedChilds = result
 			expectation.fulfill()
@@ -168,7 +152,7 @@ class CloudResourceClientYandexTests: XCTestCase {
 		XCTAssertTrue(audioItem is YandexDiskCloudAudioJsonResource)
 		//XCTAssertEqual(item.uid, audioItem?.parent?.uid)
 	}
-	
+
 	func testReceiveErrorWhileLoadingChilds() {
 		let expectation = expectationWithDescription("Should receive error")
 		
@@ -177,27 +161,25 @@ class CloudResourceClientYandexTests: XCTestCase {
 			return
 		}
 		let item = YandexDiskCloudJsonResource(raw: rootItem, httpClient: httpClient, oauth: oauthResource)
-		//let item = YandexDiskCloudJsonResource(raw: rootItem, oAuthResource: oauthResource, parent: nil, httpClient: httpClient)
 		
-		session.task?.taskProgress.bindNext { progress in
-			if case .resume(let tsk) = progress {
-				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					//tsk.completion?(nil, nil, NSError(domain: "TestDomain", code: 1, userInfo: nil))
-					self.session.sendError(tsk, error: NSError(domain: "TestDomain", code: 1, userInfo: nil), streamObserver: self.streamObserver)
-				}
-			}
-			}.addDisposableTo(bag)
+		stub({ request in
+			guard request.URL?.absoluteString == "https://cloud-api.yandex.net:443/v1/disk/resources?path=disk:/Music" else { return false }
+			guard let key = request.allHTTPHeaderFields?["Authorization"] where key == self.authKey else { return false }
+			return true
+		}) { _ in
+			return OHHTTPStubsResponse(error: NSError(domain: "TestDomain", code: 1, userInfo: nil))
+		}
 		
 		let client = CloudResourceClient()
-		//item.loadChildResources().doOnError { error in
-		client.loadChildResources(item, loadMode: .CacheAndRemote).doOnError { error in
-			XCTAssertEqual((error as NSError).code, 1)
+		client.loadChildResources(item, loadMode: .CacheAndRemote).doOnError { e in
+			guard case HttpClientError.ClientSideError(let error) = e else { return }
+			XCTAssertEqual(error.code, 1)
 			expectation.fulfill()
 			}.subscribe().addDisposableTo(bag)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
-	
+
 	func testGetDownloadUrl() {
 		let expectation = expectationWithDescription("Should return download url")
 		
@@ -207,17 +189,14 @@ class CloudResourceClientYandexTests: XCTestCase {
 				return
 		}
 		let item = YandexDiskCloudAudioJsonResource(raw: audioItem, httpClient: httpClient, oauth: oauthResource)
-		//let item = YandexDiskCloudAudioJsonResource(raw: audioItem, oAuthResource: oauthResource, parent: nil, httpClient: httpClient)
 		
-		session.task?.taskProgress.bindNext { progress in
-			if case .resume(let tsk) = progress {
-				XCTAssertEqual(item.downloadResourceUrl, tsk.originalRequest?.URL, "Check invoke url")
-				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					//tsk.completion?(sendJson.rawDataSafe(), nil, nil)
-					self.session.sendData(tsk, data: sendJson.safeRawData(), streamObserver: self.streamObserver)
-				}
-			}
-			}.addDisposableTo(bag)
+		stub({ request in
+			guard request.URL!.isEqualsToUrl(item.downloadResourceUrl!) else { return false }
+			guard let key = request.allHTTPHeaderFields?["Authorization"] where key == self.authKey else { return false }
+			return true
+		}) { _ in
+			return OHHTTPStubsResponse(data: sendJson.safeRawData()!, statusCode: 200, headers: nil)
+		}
 		
 		item.downloadUrl.bindNext { result in
 			if result == href {
@@ -227,7 +206,7 @@ class CloudResourceClientYandexTests: XCTestCase {
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
-	
+
 	func testNotReturnDownloadUrl() {
 		let expectation = expectationWithDescription("Should not return download url")
 		
@@ -235,24 +214,22 @@ class CloudResourceClientYandexTests: XCTestCase {
 		
 		let item = YandexDiskCloudAudioJsonResource(raw: audioItem, httpClient: httpClient, oauth: oauthResource)
 		
-		session.task?.taskProgress.bindNext { progress in
-			if case .resume(let tsk) = progress {
-				XCTAssertEqual(item.downloadResourceUrl, tsk.originalRequest?.URL, "Check invoke url")
-				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					// return JSON without href field
-					let sendingJson = JSON([  "method": "GET", "templated": false])
-					self.session.sendData(tsk, data: sendingJson.safeRawData(), streamObserver: self.streamObserver)
-				}
-			}
-			}.addDisposableTo(bag)
-		
+		stub({ request in
+			guard request.URL!.isEqualsToUrl(item.downloadResourceUrl!) else { return false }
+			guard let key = request.allHTTPHeaderFields?["Authorization"] where key == self.authKey else { return false }
+			return true
+		}) { _ in
+			let sendingJson = JSON([  "method": "GET", "templated": false])
+			return OHHTTPStubsResponse(data: sendingJson.safeRawData()!, statusCode: 200, headers: nil)
+		}
+
 		item.downloadUrl.doOnCompleted { expectation.fulfill() }.bindNext { result in
 			XCTFail("Should not return data")
 			}.addDisposableTo(bag)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 	}
-	
+
 	func testLoadCachedChilds() {
 		let actualChildsexpectation = expectationWithDescription("Should return actual childs")
 		let cachedChildsExpectation = expectationWithDescription("Should return cached childs")
@@ -263,26 +240,19 @@ class CloudResourceClientYandexTests: XCTestCase {
 		}
 		
 		let cachedJson = JSON.getJsonFromFile("YandexMusicFolderContents_Cached")
-		
-		//let fakeUserDefaults = FakeNSUserDefaults(localCache: [CloudResourceNsUserDefaultsCacheProvider.userDefaultsId: [rootItem["path"].stringValue: cachedJson!]])
-		//let cacheProvider = CloudResourceNsUserDefaultsCacheProvider(loadData: true, userDefaults: fakeUserDefaults)
-		//let yandexRoot = try! YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource).toBlocking().first()
+
 		let item = YandexDiskCloudJsonResource(raw: rootItem, httpClient: httpClient, oauth: oauthResource)
 		let cacheProvider = RealmCloudResourceCacheProvider()
 		cacheProvider.cacheChilds(item, childs: item.deserializeResponse(cachedJson!))
-		//let item = YandexDiskCloudJsonResource(raw: rootItem, oAuthResource: oauthResource, parent: nil, httpClient: httpClient, cacheProvider: cacheProvider)
 		
-		session.task?.taskProgress.bindNext { progress in
-			if case .resume(let tsk) = progress {
-				XCTAssertEqual(NSURL(baseUrl: item.resourcesUrl, parameters: item.getRequestParameters())?.absoluteString, tsk.originalRequest?.URL?.absoluteString,
-					"Check invoke url")
-				let json = JSON.getJsonFromFile("YandexMusicFolderContents")
-				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					//tsk.completion?(json?.rawDataSafe(), nil, nil)
-					self.session.sendData(tsk, data: json?.safeRawData(), streamObserver: self.streamObserver)
-				}
-			}
-			}.addDisposableTo(bag)
+		stub({ request in
+			guard request.URL?.absoluteString == "https://cloud-api.yandex.net:443/v1/disk/resources?path=disk:/Music" else { return false }
+			guard let key = request.allHTTPHeaderFields?["Authorization"] where key == self.authKey else { return false }
+			return true
+		}) { _ in
+			let json = JSON.getJsonFromFile("YandexMusicFolderContents")!
+			return OHHTTPStubsResponse(data: json.safeRawData()!, statusCode: 200, headers: nil)
+		}
 		
 		var loadedChilds: [CloudResource]?
 		var cachedChilds: [CloudResource]?
@@ -347,81 +317,33 @@ class CloudResourceClientYandexTests: XCTestCase {
 		//XCTAssertEqual(item.uid, audioItem?.parent?.uid)
 		//XCTAssertTrue((audioItem as! YandexDiskCloudJsonResource).cacheProvider as! CloudResourceNsUserDefaultsCacheProvider === cacheProvider)
 	}
-	
-//	func testLoadAndCacheChilds() {
-//		let expectation = expectationWithDescription("Should return childs")
-//		
-//		guard let rootItem = JSON.getJsonFromFile("YandexMusicDirItem") else {
-//			XCTFail("Failed to load json data")
-//			return
-//		}
-//		
-//		let fakeUserDefaults = FakeNSUserDefaults()
-//		let cacheProvider = CloudResourceNsUserDefaultsCacheProvider(loadData: true, userDefaults: fakeUserDefaults)
-//		let item = YandexDiskCloudJsonResource(raw: rootItem, httpClient: httpClient, oauth: oauthResource, parent: nil)
-//		//let item = YandexDiskCloudJsonResource(raw: rootItem, oAuthResource: oauthResource, parent: nil, httpClient: httpClient, cacheProvider: cacheProvider)
-//		
-//		session.task?.taskProgress.bindNext { progress in
-//			if case .resume(let tsk) = progress {
-//				XCTAssertEqual(NSURL(baseUrl: item.resourcesUrl, parameters: item.getRequestParameters())?.absoluteString, tsk.originalRequest?.URL?.absoluteString, "Check invoke url")
-//				let json = JSON.getJsonFromFile("YandexMusicFolderContents")
-//				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-//					tsk.completion?(json?.rawDataSafe(), nil, nil)
-//				}
-//			}
-//			}.addDisposableTo(bag)
-//		
-//		let client = CloudResourceClient(cacheProvider: cacheProvider)
-//		//item.loadChildResources().bindNext { _ in
-//		client.loadChildResources(item, loadMode: .CacheAndRemote).bindNext { _ in
-//			expectation.fulfill()
-//			}.addDisposableTo(bag)
-//		
-//		waitForExpectationsWithTimeout(1, handler: nil)
-//		
-//		guard let cachedData = (fakeUserDefaults.localCache.first?.1 as? [String: NSData])?.first?.1 else {
-//			XCTFail("Data not cached")
-//			return
-//		}
-//		
-//		XCTAssertEqual(JSON.getJsonFromFile("YandexMusicFolderContents"), JSON(data: cachedData), "Sended json should be same as cached")
-//	}
+
 	
 	func testCacheRootResources() {
 		let expectation = expectationWithDescription("Should return childs")
 		
-		//let fakeUserDefaults = FakeNSUserDefaults()
-		//let cacheProvider = CloudResourceNsUserDefaultsCacheProvider(loadData: true, userDefaults: fakeUserDefaults)
 		let cacheProvider = RealmCloudResourceCacheProvider()
 		
-		session.task?.taskProgress.bindNext { progress in
-			if case .resume(let tsk) = progress {
-				let json = JSON.getJsonFromFile("YandexRoot")
-				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					//tsk.completion?(json?.rawDataSafe(), nil, nil)
-					self.session.sendData(tsk, data: json?.safeRawData(), streamObserver: self.streamObserver)
-				}
-			}
-			}.addDisposableTo(bag)
+		stub({ request in
+			guard request.URL?.absoluteString == "https://cloud-api.yandex.net:443/v1/disk/resources?path=/" else { return false }
+			guard let key = request.allHTTPHeaderFields?["Authorization"] where key == self.authKey else { return false }
+			return true
+		}) { _ in
+			let json = JSON.getJsonFromFile("YandexRoot")!
+			return OHHTTPStubsResponse(data: json.safeRawData()!, statusCode: 200, headers: nil)
+		}
 		
 		let client = CloudResourceClient(cacheProvider: cacheProvider)
-		//YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpClient, cacheProvider: cacheProvider)?.bindNext { _ in
 		client.loadChildResources(rootResource, loadMode: .CacheAndRemote).doOnError { _ in XCTFail("Request failed") }.bindNext { _ in
 			expectation.fulfill()
 			}.addDisposableTo(bag)
 		
 		waitForExpectationsWithTimeout(1, handler: nil)
 		
-		//guard let cachedData = (fakeUserDefaults.localCache.first?.1 as? [String: NSData])?.first?.1 else {
-		//	XCTFail("Data not cached")
-		//	return
-		//}
-		
 		let realm = try! Realm()
 		XCTAssertEqual(10, realm.objects(RealmCloudResource).count)
-		//XCTAssertEqual(JSON.getJsonFromFile("YandexRoot"), JSON(data: cachedData), "Sended json should be same as cached")
 	}
-	
+
 	func testLoadCachedRootData() {
 		let actualRootsexpectation = expectationWithDescription("Should return actual root items")
 		let cachedRootExpectation = expectationWithDescription("Ahould return cached root items")
@@ -431,20 +353,18 @@ class CloudResourceClientYandexTests: XCTestCase {
 		let cacheProvider = RealmCloudResourceCacheProvider()
 		cacheProvider.cacheChilds(yandexRoot, childs: yandexRoot.deserializeResponse(cachedJson))
 		
-		session.task?.taskProgress.bindNext { progress in
-			if case .resume(let tsk) = progress {
-				let json = JSON.getJsonFromFile("YandexRoot")
-				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					//tsk.completion?(json?.rawDataSafe(), nil, nil)
-					self.session.sendData(tsk, data: json?.safeRawData(), streamObserver: self.streamObserver)
-				}
-			}
-			}.addDisposableTo(bag)
+		stub({ request in
+			guard request.URL?.absoluteString == "https://cloud-api.yandex.net:443/v1/disk/resources?path=/" else { return false }
+			guard let key = request.allHTTPHeaderFields?["Authorization"] where key == self.authKey else { return false }
+			return true
+		}) { _ in
+			let json = JSON.getJsonFromFile("YandexRoot")!
+			return OHHTTPStubsResponse(data: json.safeRawData()!, statusCode: 200, headers: nil)
+		}
 		
 		var responseCount = 0
 		
 		let client = CloudResourceClient(cacheProvider: cacheProvider)
-		//YandexDiskCloudJsonResource.loadRootResources(oauthResource, httpRequest: httpClient, cacheProvider: cacheProvider)?.bindNext { childs in
 		client.loadChildResources(rootResource, loadMode: .CacheAndRemote).bindNext { childs in
 			if responseCount == 0 {
 				// first responce should be with locally cached data
@@ -461,7 +381,7 @@ class CloudResourceClientYandexTests: XCTestCase {
 		
 		XCTAssertEqual(2, responseCount, "Check receive two responses")
 	}
-	
+
 	func testLoadCacheOnly() {
 		guard let rootItem = JSON.getJsonFromFile("YandexMusicDirItem") else {
 			waitForExpectationsWithTimeout(1, handler: nil)
@@ -474,31 +394,25 @@ class CloudResourceClientYandexTests: XCTestCase {
 
 		let cacheProvider = RealmCloudResourceCacheProvider()
 		cacheProvider.cacheChilds(musicResource, childs: musicChilds)
-		//let item = YandexDiskCloudJsonResource(raw: rootItem, httpClient: httpClient, oauth: oauthResource, parent: nil)
-		//let item = YandexDiskCloudJsonResource(raw: rootItem, oAuthResource: oauthResource, parent: nil, httpClient: httpClient, cacheProvider: cacheProvider)
 		
-		session.task?.taskProgress.bindNext { progress in
-			if case .resume(let tsk) = progress {
-				XCTAssertEqual(NSURL(baseUrl: musicResource.resourcesUrl, parameters: musicResource.getRequestParameters())?.absoluteString, tsk.originalRequest?.URL?.absoluteString,
-					"Check invoke url")
-				let json = JSON.getJsonFromFile("YandexMusicFolderContents")
-				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					//tsk.completion?(json?.rawDataSafe(), nil, nil)
-					self.session.sendData(tsk, data: json?.safeRawData(), streamObserver: self.streamObserver)
-				}
-			}
-			}.addDisposableTo(bag)
+		stub({ request in
+			print(request.URL)
+			guard request.URL?.absoluteString == "https://cloud-api.yandex.net:443/v1/disk/resources?path=disk:/Music" else { return false }
+			guard let key = request.allHTTPHeaderFields?["Authorization"] where key == self.authKey else { return false }
+			return true
+		}) { _ in
+			XCTFail("Should not invoke HTTP request")
+			let json = JSON.getJsonFromFile("YandexMusicFolderContents")!
+			return OHHTTPStubsResponse(data: json.safeRawData()!, statusCode: 200, headers: nil)
+		}
 		
 		let client = CloudResourceClient(cacheProvider: cacheProvider)
-		//let response = try! item.loadChildResources(.CacheOnly).toBlocking().toArray()
 		let response = try! client.loadChildResources(musicResource, loadMode: .CacheOnly).toBlocking().toArray()
 		
 		// check responded only with cached data
 		XCTAssertEqual(1, response.count, "Check responded once")
 		
 		// check return correct cached data
-		//let first = response.first?.first
-		//guard case Result.success(let box) = response.first! else { XCTFail("Incorrect response returned"); return }
 		let first = response.first?.first
 		XCTAssertEqual(first?.name, "Apocalyptica")
 		XCTAssertEqual(first?.uid, "disk:/Music/Apocalyptica")
@@ -508,8 +422,6 @@ class CloudResourceClientYandexTests: XCTestCase {
 		//XCTAssertTrue(first?.parent as? YandexDiskCloudJsonResource === musicResource)
 		//XCTAssertTrue((first as! YandexDiskCloudJsonResource).cacheProvider as! CloudResourceNsUserDefaultsCacheProvider === cacheProvider)
 		
-		//guard case Result.success(let box2) = response.last! else { XCTFail("Incorrect response returned"); return }
-		//let audioItem = response.last?.last as? CloudAudioResource
 		let audioItem = response.first?.last
 		XCTAssertEqual(audioItem?.name, "CachedTrack.mp3")
 		XCTAssertEqual(audioItem?.uid, "disk:/Music/CachedTrack.mp3")
@@ -519,7 +431,7 @@ class CloudResourceClientYandexTests: XCTestCase {
 		//XCTAssertEqual(musicResource.uid, audioItem?.parent?.uid)
 		//XCTAssertTrue((audioItem as! YandexDiskCloudJsonResource).cacheProvider as! CloudResourceNsUserDefaultsCacheProvider === cacheProvider)
 	}
-	
+
 	func testLoadRemoteOnly() {
 		guard let rootItem = JSON.getJsonFromFile("YandexMusicDirItem") else {
 			waitForExpectationsWithTimeout(1, handler: nil)
@@ -534,20 +446,17 @@ class CloudResourceClientYandexTests: XCTestCase {
 		cacheProvider.cacheChilds(musicResource, childs: musicChilds)
 		//let item = YandexDiskCloudJsonResource(raw: rootItem, oAuthResource: oauthResource, parent: nil, httpClient: httpClient, cacheProvider: cacheProvider)
 		
-		session.task?.taskProgress.bindNext { progress in
-			if case .resume(let tsk) = progress {
-				XCTAssertEqual(NSURL(baseUrl: musicResource.resourcesUrl, parameters: musicResource.getRequestParameters())?.absoluteString, tsk.originalRequest?.URL?.absoluteString,
-					"Check invoke url")
-				let json = JSON.getJsonFromFile("YandexMusicFolderContents")
-				dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0)) {
-					//tsk.completion?(json?.rawDataSafe(), nil, nil)
-					self.session.sendData(tsk, data: json?.safeRawData(), streamObserver: self.streamObserver)
-				}
-			}
-			}.addDisposableTo(bag)
+		stub({ request in
+			print(request.URL)
+			guard request.URL?.absoluteString == "https://cloud-api.yandex.net:443/v1/disk/resources?path=disk:/Music" else { return false }
+			guard let key = request.allHTTPHeaderFields?["Authorization"] where key == self.authKey else { return false }
+			return true
+		}) { _ in
+			let json = JSON.getJsonFromFile("YandexMusicFolderContents")!
+			return OHHTTPStubsResponse(data: json.safeRawData()!, statusCode: 200, headers: nil)
+		}
 		
 		let client = CloudResourceClient(cacheProvider: cacheProvider)
-		//let response = try! item.loadChildResources(.RemoteOnly).toBlocking().toArray()
 		let response = try! client.loadChildResources(musicResource, loadMode: .RemoteOnly).toBlocking().toArray()
 		
 		// check responded only with cached data

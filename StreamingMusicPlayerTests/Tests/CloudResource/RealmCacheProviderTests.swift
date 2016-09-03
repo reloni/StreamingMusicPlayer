@@ -40,9 +40,6 @@ func fillRealmCloudResourceCacheProviderWithTestData() {
 
 class RealmCacheProviderTests: XCTestCase {
 	var bag: DisposeBag!
-	var request: FakeRequest!
-	var session: FakeSession!
-	var utilities: FakeHttpUtilities!
 	var oauthResource: OAuthType!
 	var httpClient: HttpClientType!
 	var rootResource: CloudResource!
@@ -54,11 +51,7 @@ class RealmCacheProviderTests: XCTestCase {
 		Realm.Configuration.defaultConfiguration.inMemoryIdentifier = self.name
 		
 		bag = DisposeBag()
-		request = FakeRequest()
-		session = FakeSession(fakeTask: FakeDataTask(completion: nil))
-		utilities = FakeHttpUtilities()
-		httpClient = HttpClient(sessionConfiguration: NSURLSessionConfiguration.defaultSessionConfiguration(), httpUtilities: utilities)
-		//oauthResource = OAuthResourceBase(id: "fakeOauthResource", authUrl: "https://fakeOauth.com", clientId: "fakeClientId", tokenId: "fakeTokenId")
+		httpClient = HttpClient()
 		oauthResource = YandexOAuth(clientId: "fakeClientId", urlScheme: "fakeOauthResource", keychain: FakeKeychain(), authenticator: OAuthAuthenticator())
 		(oauthResource as! YandexOAuth).keychain.setString("", forAccount: (oauthResource as! YandexOAuth).tokenKeychainId, synchronizable: false, background: false)
 		rootResource = YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource)
@@ -68,9 +61,6 @@ class RealmCacheProviderTests: XCTestCase {
 		// Put teardown code here. This method is called after the invocation of each test method in the class.
 		super.tearDown()
 		bag = nil
-		request = nil
-		session = nil
-		utilities = nil
 	}
 	
 	func testLoadData() {

@@ -5,41 +5,17 @@ import OHHTTPStubs
 import RxSwift
 @testable import RxHttpClient
 
-extension JSON {
-	public static func getJsonFromFile(fileName: String) -> JSON? {
-		guard let path = NSBundle(forClass: YandexCloudResourceTests.self).pathForResource(fileName, ofType: "json"),
-			dataStr = try? String(contentsOfFile: path), let data = dataStr.dataUsingEncoding(NSUTF8StringEncoding)else { return nil }
-		
-		return JSON(data)
-	}
-	
-	//public func rawDataSafe() -> NSData? {
-	//	return try? rawData()
-	//}
-}
-
 class YandexCloudResourceTests: XCTestCase {
 	var bag: DisposeBag!
-	var request: FakeRequest!
-	var session: FakeSession!
-	var utilities: FakeHttpUtilities!
 	var oauthResource: OAuthType!
 	var httpClient: HttpClientType!
-	var streamObserver: NSURLSessionDataEventsObserver!
 	
 	override func setUp() {
 		super.setUp()
 		// Put setup code here. This method is called before the invocation of each test method in the class.
 		
 		bag = DisposeBag()
-		request = FakeRequest()
-		streamObserver = NSURLSessionDataEventsObserver()
-		session = FakeSession(fakeTask: FakeDataTask(completion: nil))
-		utilities = FakeHttpUtilities()
-		utilities.streamObserver = streamObserver
-		utilities.fakeSession = session
-		httpClient = HttpClient(sessionConfiguration: NSURLSessionConfiguration.defaultSessionConfiguration(), httpUtilities: utilities)
-		//oauthResource = OAuthResourceBase(id: "fakeOauthResource", authUrl: "https://fakeOauth.com", clientId: "fakeClientId", tokenId: "fakeTokenId")
+		httpClient = HttpClient()
 		oauthResource = YandexOAuth(clientId: "fakeClientId", urlScheme: "fakeOauthResource", keychain: FakeKeychain(), authenticator: OAuthAuthenticator())
 		(oauthResource as! YandexOAuth).keychain.setString("", forAccount: (oauthResource as! YandexOAuth).tokenKeychainId, synchronizable: false, background: false)
 	}
@@ -48,9 +24,6 @@ class YandexCloudResourceTests: XCTestCase {
 		// Put teardown code here. This method is called after the invocation of each test method in the class.
 		super.tearDown()
 		bag = nil
-		request = nil
-		session = nil
-		utilities = nil
 	}
 	
 	func testReturnRootResource() {
@@ -81,10 +54,10 @@ class YandexCloudResourceTests: XCTestCase {
 	func testCreateRequest() {
 		//let req = YandexDiskCloudJsonResource.createRequestForLoadRootResources(oauthResource, httpUtilities: utilities) as? FakeRequest
 		let root = YandexDiskCloudJsonResource.getRootResource(httpClient, oauth: oauthResource) as? YandexDiskCloudJsonResource
-		let req = root?.createRequest() as? FakeRequest
+		let req = root?.createRequest()
 		XCTAssertNotNil(req, "Should create request")
 		XCTAssertEqual(NSURL(baseUrl: YandexDiskCloudJsonResource.resourcesApiUrl, parameters: ["path": "/"]), req?.URL, "Should create correct url")
-		XCTAssertEqual(oauthResource.accessToken, req?.headers["Authorization"], "Should set one header with correct token")
+		XCTAssertEqual(oauthResource.accessToken, req!.allHTTPHeaderFields!["Authorization"], "Should set one header with correct token")
 	}
 	
 	func testNotCreateRequest() {

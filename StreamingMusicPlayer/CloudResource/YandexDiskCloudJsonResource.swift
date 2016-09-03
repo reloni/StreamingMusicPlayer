@@ -36,7 +36,7 @@ public class YandexDiskCloudJsonResource {
 		self.httpClient = httpClient
 	}
 	
-	internal func createRequest() -> NSURLRequestType? {
+	internal func createRequest() -> NSMutableURLRequest? {
 		guard oAuthResource.accessToken != nil else { return nil }
 		guard let url = NSURL(baseUrl: resourcesUrl, parameters: getRequestParameters()) else { return nil }
 		return httpClient.createUrlRequest(url, headers: getRequestHeaders())

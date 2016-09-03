@@ -141,7 +141,7 @@ struct GoogleOAuth {
 	     scopes: [String],
 	     keychain: KeychainType,
 	     authenticator: OAuthAuthenticatorType = OAuthAuthenticator.sharedInstance,
-	     httpClient: HttpClientType = HttpClient(urlSession: NSURLSession.sharedSession())) {
+	     httpClient: HttpClientType = HttpClient()) {
 		self.init(baseAuthUrl: "https://accounts.google.com/o/oauth2/v2/auth", urlParameters: ["response_type": "code"],
 		          urlScheme: urlScheme, redirectUri: redirectUri, scopes: scopes, tokenUrl: "https://www.googleapis.com/oauth2/v4/token",
 		          clientId:  clientId, keychain: keychain, authenticator: authenticator, httpClient: httpClient)
@@ -190,7 +190,8 @@ extension GoogleOAuth : OAuthType {
 			if let tokenUrl = NSURL(baseUrl: self.tokenUrl,
 			                        parameters: ["code": code, "client_id": self.clientId, "redirect_uri": self.redirectUri, "grant_type": "authorization_code"]) {
 				let request = httpClient.createUrlRequest(tokenUrl)
-				request.setHttpMethod("POST")
+				//request.setHttpMethod("POST")
+				request.HTTPMethod = "POST"
 				return httpClient.loadJsonData(request).flatMapLatest { response -> Observable<OAuthType> in
 					if let accessToken = response["access_token"].string {
 						self.keychain.setString(accessToken, forAccount: self.tokenKeychainId, synchronizable: true, background: false)
