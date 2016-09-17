@@ -67,3 +67,4 @@ fastlane/screenshots
 .idea
 
 Dependencies/iOS/Release
+/ObjRoot
